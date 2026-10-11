@@ -1,0 +1,570 @@
+<title>우리반 자리배치표</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap">
+<style>
+/* 교실 평면도: 위=교실 뒤, 아래=교실 앞(교탁). 왼쪽 복도, 오른쪽 창문. 3분단 × 5줄 짝꿍 책상 */
+:root{
+  --floor:#eef1ec;        /* 교실 바닥 */
+  --panel:#ffffff;
+  --ink:#1f2a24;
+  --muted:#66736b;
+  --line:#c9d2cb;
+  --desk:#e9d2a8;         /* 책상 상판 */
+  --desk-edge:#c9a46a;
+  --seat:#fffaf0;
+  --empty:#f4f6f3;
+  --accent:#2f7d5b;       /* 칠판 초록 */
+  --accent-ink:#ffffff;
+  --solo:#d88b2c;
+  --danger:#b4442f;
+  --overlay:rgba(18,32,25,.82);
+  --font-display:"Do Hyeon","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --font-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --floor:#151b18;--panel:#1d2521;--ink:#e6ece8;--muted:#9aa8a0;--line:#34413a;
+  --desk:#6b5636;--desk-edge:#8c7148;--seat:#2a2620;--empty:#202823;
+  --accent:#4fae84;--accent-ink:#0d1712;--solo:#e3a352;--danger:#e0735d;--overlay:rgba(6,10,8,.86);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --floor:#151b18;--panel:#1d2521;--ink:#e6ece8;--muted:#9aa8a0;--line:#34413a;
+  --desk:#6b5636;--desk-edge:#8c7148;--seat:#2a2620;--empty:#202823;
+  --accent:#4fae84;--accent-ink:#0d1712;--solo:#e3a352;--danger:#e0735d;--overlay:rgba(6,10,8,.86);
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--floor);color:var(--ink);font-family:var(--font-body);font-size:15px}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 40px;padding-inline:16px;display:flex;flex-direction:column;gap:16px}
+
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font-family:var(--font-display);font-weight:400;font-size:clamp(28px,4vw,40px);margin:0;letter-spacing:.02em}
+.meta{color:var(--muted);font-size:14px;margin-top:4px}
+.meta b{color:var(--ink);font-weight:600}
+
+.controls{display:flex;flex-wrap:wrap;gap:8px}
+button{font-family:var(--font-display);font-size:19px;border:0;border-radius:10px;padding:10px 18px;cursor:pointer;
+  background:var(--panel);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line);transition:transform .08s,background .15s}
+button:hover:not(:disabled){transform:translateY(-1px)}
+button:active:not(:disabled){transform:translateY(1px)}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.primary{background:var(--accent);color:var(--accent-ink);box-shadow:none}
+button.warn{color:var(--danger)}
+
+/* 교실 */
+.room{position:relative;background:var(--panel);border-radius:14px;box-shadow:0 0 0 1.5px var(--line);
+  display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:8px;padding:18px 10px 16px}
+.side{display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:22px;color:var(--muted);
+  writing-mode:vertical-rl;text-orientation:upright;letter-spacing:.6em;border-radius:8px}
+.side.hall{background:linear-gradient(270deg,transparent,color-mix(in srgb,var(--muted) 10%,transparent))}
+.side.window{background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--accent) 10%,transparent))}
+.back-tag{grid-column:1/-1;text-align:center;font-size:12px;color:var(--muted);letter-spacing:.3em;margin-bottom:-2px}
+
+.class{display:flex;flex-direction:column;gap:12px;min-width:0}
+.groups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(10px,3vw,40px)}
+.group{display:flex;flex-direction:column;gap:clamp(8px,1.4vw,14px)}
+.desk{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:5px;border-radius:9px;background:var(--desk);
+  box-shadow:inset 0 -3px 0 var(--desk-edge)}
+.seat{min-height:62px;border-radius:6px;background:var(--seat);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:4px 2px;text-align:center;min-width:0}
+.seat .no{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;line-height:1.1}
+.seat .nm{font-weight:700;font-size:clamp(14px,1.9vw,21px);line-height:1.2;word-break:keep-all;overflow-wrap:anywhere}
+.seat.empty{background:var(--empty);box-shadow:inset 0 0 0 1.5px var(--line);background-image:repeating-linear-gradient(135deg,transparent 0 7px,color-mix(in srgb,var(--line) 45%,transparent) 7px 8px)}
+.seat.empty .nm{font-weight:400;font-size:13px;color:var(--muted)}
+.seat.solo{box-shadow:inset 0 0 0 2px var(--solo)}
+.seat.flicker .nm{color:var(--muted)}
+.seat.pop{animation:pop .45s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+
+.labels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(10px,3vw,40px);text-align:center;font-size:13px;color:var(--muted);font-weight:600}
+.podium-row{display:flex;justify-content:center;margin-top:4px}
+.podium{font-family:var(--font-display);font-size:22px;padding:10px 40px;border-radius:8px;background:var(--desk);box-shadow:inset 0 -3px 0 var(--desk-edge);letter-spacing:.4em;padding-left:calc(40px + .4em)}
+.front-tag{text-align:center;font-size:12px;color:var(--muted);letter-spacing:.3em}
+
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:16px;height:12px;border-radius:3px;display:inline-block}
+.sw.s{background:var(--seat);box-shadow:inset 0 0 0 2px var(--solo)}
+.sw.e{background:var(--empty);box-shadow:inset 0 0 0 1.5px var(--line)}
+
+/* 카운트다운 */
+.overlay{position:fixed;inset:0;background:var(--overlay);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:10}
+.cd-wrap{position:relative;width:min(60vw,340px);aspect-ratio:1;max-width:100%}
+.cd-wrap svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.cd-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);
+  font-size:min(38vw,210px);color:#fff;font-variant-numeric:tabular-nums;line-height:1}
+.cd-num.tick{animation:tick .9s ease-out}
+.cd-num.hot{color:#ffd166}
+@keyframes tick{0%{transform:scale(1.35);opacity:.2}25%{transform:scale(1);opacity:1}100%{transform:scale(.92)}}
+.cd-cap{font-family:var(--font-display);font-size:24px;color:#e8f2ec;letter-spacing:.1em}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--panel);
+  padding:10px 16px;border-radius:10px;font-size:14px;z-index:20;max-width:calc(100% - 32px)}
+
+/* 명렬 편집 */
+.modal-bg{position:fixed;inset:0;background:var(--overlay);display:flex;align-items:flex-start;justify-content:center;padding:max(16px,4vh) 16px;overflow-y:auto;z-index:15}
+.modal{background:var(--panel);color:var(--ink);border-radius:14px;width:100%;max-width:560px;padding:20px;display:flex;flex-direction:column;gap:8px;box-shadow:0 0 0 1.5px var(--line)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.modal h2{font-family:var(--font-display);font-weight:400;font-size:26px;margin:0}
+.modal .x{padding:6px 12px;font-size:16px}
+.fld{font-weight:600;font-size:14px;margin-top:8px}
+.fld small{font-weight:400;color:var(--muted)}
+.modal input[type=text],.modal textarea{width:100%;font:inherit;font-size:15px;color:var(--ink);background:var(--floor);border:1.5px solid var(--line);border-radius:8px;padding:8px 10px}
+.modal textarea{font-variant-numeric:tabular-nums;line-height:1.5;resize:vertical}
+.modal input:focus-visible,.modal textarea:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.file-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.file-row input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
+.filebtn{font-family:var(--font-display);font-size:17px;padding:8px 14px;border-radius:10px;cursor:pointer;background:var(--floor);box-shadow:inset 0 0 0 1.5px var(--line)}
+.file-row input:focus-visible + .filebtn,.filebtn:hover{box-shadow:inset 0 0 0 2px var(--accent)}
+.hint{margin:0;font-size:13px;color:var(--muted);line-height:1.5}
+.hint.strong{color:var(--ink);font-weight:600}
+.hint.err{color:var(--danger)}
+.modal-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.modal-actions .grow{flex:1}
+.modal-actions button{font-size:17px;padding:8px 16px}
+
+@media (max-width:560px){
+  .room{grid-template-columns:26px minmax(0,1fr) 26px;padding:12px 4px}
+  .side{font-size:15px;letter-spacing:.3em}
+  .desk{grid-template-columns:1fr;gap:3px;padding:3px}
+  .seat{min-height:44px}
+  .podium{font-size:18px;padding:8px 24px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1><span id="classTitle">우리반</span> 자리배치표</h1>
+      <div class="meta" id="meta"></div>
+    </div>
+    <div class="controls">
+      <button class="primary" id="btnShuffle" type="button">🎲 랜덤 셔플</button>
+      <button class="warn" id="btnReset" type="button">초기화</button>
+      <button id="btnCapture" type="button">📷 캡처 (PNG)</button>
+      <button id="btnRoster" type="button">📝 명렬 편집</button>
+    </div>
+  </header>
+
+  <section class="room" id="room" aria-label="교실 자리 배치">
+    <div class="back-tag">교실 뒤</div>
+    <div class="side hall">복도</div>
+    <div class="class">
+      <div class="groups" id="groups"></div>
+      <div class="labels"><div>1분단</div><div>2분단</div><div>3분단</div></div>
+      <div class="podium-row"><div class="podium">교탁</div></div>
+      <div class="front-tag">교실 앞</div>
+    </div>
+    <div class="side window">창문</div>
+  </section>
+
+  <div class="legend">
+    <span><i class="sw s"></i>혼자 앉는 자리</span>
+    <span><i class="sw e"></i>빈자리</span>
+    <span id="excluded"></span>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="cd-wrap">
+    <svg viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="5"></circle>
+      <circle id="ring" cx="50" cy="50" r="46" fill="none" stroke="#ffd166" stroke-width="5" stroke-linecap="round"
+        stroke-dasharray="289.03" stroke-dashoffset="0"></circle>
+    </svg>
+    <div class="cd-num" id="cdNum">10</div>
+  </div>
+  <div class="cd-cap">두근두근… 자리를 섞는 중!</div>
+</div>
+<div class="modal-bg" id="rosterModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rosterHead">
+    <div class="modal-head">
+      <h2 id="rosterHead">학생 명렬 편집</h2>
+      <button type="button" class="x" id="btnRosterClose" aria-label="닫기">✕</button>
+    </div>
+    <label class="fld" for="classInput">반 이름 <small>(제목과 캡처 이미지에 표시)</small></label>
+    <input id="classInput" type="text" maxlength="20" placeholder="예: 2학년 3반">
+
+    <div class="fld">엑셀 파일로 불러오기 <small>(첫 시트의 ‘번호’, ‘성명’ 또는 ‘이름’ 열을 찾아 읽습니다)</small></div>
+    <div class="file-row">
+      <input id="xlsxInput" type="file" accept=".xlsx,.xls,.csv">
+      <label class="filebtn" for="xlsxInput">엑셀 파일 선택 (.xlsx, .xls, .csv)</label>
+      <span id="fileMsg" class="hint"></span>
+    </div>
+
+    <label class="fld" for="rosterText">또는 직접 입력 · 엑셀에서 복사해 붙여넣기 <small>(한 줄에 한 명: <b>번호 이름</b>)</small></label>
+    <textarea id="rosterText" rows="12" spellcheck="false" placeholder="1 강우진&#10;2 고윤아&#10;3&#10;4 권수연"></textarea>
+    <p class="hint">번호만 있고 이름이 없는 줄은 전학·자퇴생으로 보고 자리에서 뺍니다. 번호 없이 이름만 써도 됩니다. 최대 30명까지 배치됩니다.</p>
+    <p class="hint strong" id="rosterPreview"></p>
+
+    <div class="modal-actions">
+      <button type="button" class="warn" id="btnRosterDefault">예시 명렬로 되돌리기</button>
+      <span class="grow"></span>
+      <button type="button" id="btnRosterCancel">취소</button>
+      <button type="button" class="primary" id="btnRosterSave">적용</button>
+    </div>
+    <p class="hint">입력한 명렬은 이 브라우저에 저장되어 다음에 열어도 그대로 남습니다. 다른 선생님 화면에는 영향을 주지 않습니다.</p>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+// ===== 예시 명렬 (엑셀 원본: 번호, 성명) — 이름이 없는 번호는 전학/자퇴로 제외 =====
+const DEFAULT_ROSTER = [
+  [1,"강우진"],[2,"고윤아"],[3,"곽도영"],[4,"권수연"],[5,"김나현"],[6,"김도윤"],[7,""],
+  [8,"김시우"],[9,"김지안"],[10,"노하은"],[11,"류시온"],[12,"박건우"],[13,"박민서"],[14,"박서준"],
+  [15,"배수민"],[16,"백지우"],[17,"서예진"],[18,"송하민"],[19,"신지호"],[20,"안도현"],[21,"오은재"],
+  [22,"윤서아"],[23,"이도현"],[24,"이수아"],[25,"장민재"],[26,"정시아"],[27,"조이한"],[28,"최유진"]
+];
+const ROWS = 5, GROUPS = 3, MAX_SEATS = 30;   // 5줄 × 3분단 = 15책상 = 30좌석
+const DEFAULT_CLASS = "우리반";
+const STORE_KEY = "seatchart.roster.v1";
+
+let ROSTER = DEFAULT_ROSTER, CLASS_NAME = DEFAULT_CLASS;
+let students = [], excluded = [];
+function applyRoster(roster, className){
+  ROSTER = roster; CLASS_NAME = (className||"").trim() || DEFAULT_CLASS;
+  students = ROSTER.filter(([,n]) => n && String(n).trim()).map(([no,name]) => ({no, name:String(name).trim()}));
+  excluded = ROSTER.filter(([,n]) => !n || !String(n).trim()).map(([no]) => no);
+}
+// 이 브라우저에 저장된 명렬이 있으면 불러오기
+(function(){
+  let saved = null;
+  try{ saved = JSON.parse(localStorage.getItem(STORE_KEY)||"null"); }catch(e){}
+  if(saved && Array.isArray(saved.roster) && saved.roster.length) applyRoster(saved.roster, saved.className);
+  else applyRoster(DEFAULT_ROSTER, DEFAULT_CLASS);
+})();
+
+// ===== 명렬 텍스트 ↔ 배열 =====
+// 한 줄: "번호 이름" / "번호<TAB>이름" / "번호,이름" / "번호"(제외) / "이름"(번호 자동)
+function parseRosterText(text){
+  const out = []; let auto = 0;
+  for(const raw of text.split(/\r?\n/)){
+    const line = raw.trim(); if(!line) continue;
+    const m = line.match(/^(\d+)\s*(?:번)?[\s,.\t:)\-]*(.*)$/);
+    if(m){ const no=+m[1]; out.push([no, m[2].replace(/[\t,]+/g," ").trim()]); auto = Math.max(auto,no); }
+    else { if(/^(번호|성명|이름)/.test(line)) continue; out.push([++auto, line.replace(/[\t,]+/g," ").trim()]); }
+  }
+  return out;
+}
+function rosterToText(r){ return r.map(([no,n]) => n ? `${no} ${n}` : `${no}`).join("\n"); }
+
+// 엑셀 시트(2차원 배열)에서 번호/이름 열 찾기
+function rosterFromRows(rows){
+  let hr=-1, noCol=-1, nameCol=-1;
+  for(let i=0;i<Math.min(rows.length,10) && hr<0;i++){
+    const r = rows[i]||[];
+    r.forEach((c,j)=>{ const s=String(c??"").replace(/\s/g,"");
+      if(noCol<0 && /^(번호|번|출석번호|no\.?)$/i.test(s)) noCol=j;
+      if(nameCol<0 && /^(성명|이름|학생명|성함|name)$/i.test(s)) nameCol=j; });
+    if(nameCol>=0) hr=i; else noCol=-1;
+  }
+  if(hr<0){ hr=-1; noCol=0; nameCol=1; }             // 머리글이 없으면 A열=번호, B열=이름
+  const out=[]; let auto=0;
+  for(let i=hr+1;i<rows.length;i++){
+    const r=rows[i]||[];
+    const name = String(r[nameCol]??"").trim();
+    const noRaw = noCol>=0 ? String(r[noCol]??"").trim() : "";
+    const no = /^\d+$/.test(noRaw) ? +noRaw : null;
+    if(no===null && !name) continue;
+    if(no===null){ out.push([++auto,name]); } else { out.push([no,name]); auto=Math.max(auto,no); }
+  }
+  return out;
+}
+
+// layout[row][group] = { seats:[student|null, student|null], solo:bool }   row 0 = 교실 앞
+let layout = null;
+
+const $ = id => document.getElementById(id);
+const groupsEl = $("groups");
+
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+// ===== 배치 규칙 =====
+// 1) 짝을 최대한 채워 혼자 앉는 학생 수를 최소(0 또는 1명)로
+// 2) 앞줄부터 책상을 채우고, 빈 책상은 항상 뒤쪽에
+// 3) 혼자 앉는 학생은 학생이 앉은 줄 중 맨 뒷줄에
+function makeLayout(){
+  const list = shuffle(students).slice(0, ROWS*GROUPS*2);
+  const n = list.length;
+  const pairs = Math.floor(n/2), solo = n % 2;
+  const desksUsed = pairs + solo;
+  const fullRows = Math.floor(desksUsed / GROUPS), rem = desksUsed % GROUPS;
+
+  // 사용할 책상 목록(앞→뒤). 마지막 줄의 일부만 쓰는 경우 위치는 랜덤
+  const used = [];
+  for(let r=0;r<fullRows;r++) for(let g=0;g<GROUPS;g++) used.push([r,g]);
+  if(rem) shuffle([0,1,2]).slice(0,rem).forEach(g => used.push([fullRows,g]));
+
+  // 혼자 앉는 책상: 사용 책상 중 맨 뒷줄에서 랜덤 선택
+  let soloDesk = null;
+  if(solo){
+    const backRow = Math.max(...used.map(d=>d[0]));
+    const cands = used.filter(d=>d[0]===backRow);
+    soloDesk = cands[Math.floor(Math.random()*cands.length)];
+  }
+
+  const L = Array.from({length:ROWS}, () => Array.from({length:GROUPS}, () => ({seats:[null,null], solo:false})));
+  let k = 0;
+  for(const [r,g] of used){
+    const d = L[r][g];
+    if(soloDesk && r===soloDesk[0] && g===soloDesk[1]){
+      d.solo = true; d.seats[Math.random()<.5?0:1] = list[k++];
+    } else { d.seats = [list[k++], list[k++]]; }
+  }
+  return L;
+}
+
+// ===== 화면 그리기 =====
+function seatHTML(st, solo){
+  if(!st) return `<div class="seat empty"><span class="no">&nbsp;</span><span class="nm">빈자리</span></div>`;
+  return `<div class="seat${solo?' solo':''}"><span class="no">${st.no}번</span><span class="nm">${st.name}</span></div>`;
+}
+function render(L, opts={}){
+  let html = "";
+  for(let g=0; g<GROUPS; g++){
+    html += `<div class="group" aria-label="${g+1}분단">`;
+    for(let r=ROWS-1; r>=0; r--){           // 화면 위 = 교실 뒤
+      const d = L ? L[r][g] : {seats:[null,null],solo:false};
+      html += `<div class="desk" data-r="${r}" data-g="${g}">${seatHTML(d.seats[0],d.solo)}${seatHTML(d.seats[1],d.solo)}</div>`;
+    }
+    html += `</div>`;
+  }
+  groupsEl.innerHTML = html;
+  if(opts.reveal){
+    // 앞줄부터 차례로 등장
+    groupsEl.querySelectorAll(".desk").forEach(el=>{
+      const delay = (+el.dataset.r)*120 + (+el.dataset.g)*40;
+      el.querySelectorAll(".seat").forEach(s=>{ s.style.animationDelay = delay+"ms"; s.classList.add("pop"); });
+    });
+  }
+}
+function renderFlicker(){
+  const pool = shuffle(students);
+  groupsEl.querySelectorAll(".seat").forEach((s,i)=>{
+    const st = pool[i % pool.length];
+    s.className = "seat flicker";
+    s.innerHTML = `<span class="no">?</span><span class="nm">${st.name}</span>`;
+  });
+}
+
+function updateMeta(){
+  const n = students.length;
+  $("classTitle").textContent = CLASS_NAME;
+  document.title = `${CLASS_NAME} 자리배치표`;
+  $("meta").innerHTML = `재적 <b>${n}명</b> · 짝꿍 책상 15개(30석) · ${new Date().toLocaleDateString("ko-KR",{year:"numeric",month:"long",day:"numeric"})}`
+    + (n>MAX_SEATS ? ` · <b style="color:var(--danger)">30석을 넘어 ${n-MAX_SEATS}명은 배치되지 않습니다</b>` : "");
+  $("excluded").textContent = excluded.length ? `배정 제외(전학·자퇴): ${excluded.map(n=>n+"번").join(", ")}` : "";
+}
+
+// ===== 명렬 편집 창 =====
+function previewText(r){
+  const act = r.filter(([,n])=>n).length, ex = r.length-act;
+  if(!r.length) return {msg:"명렬이 비어 있습니다.", ok:false};
+  if(!act) return {msg:"이름이 있는 학생이 없습니다.", ok:false};
+  const solo = act%2, pairs = Math.floor(Math.min(act,MAX_SEATS)/2);
+  let msg = `배정 ${act}명` + (ex?` · 제외 ${ex}명`:"") + ` → 짝 ${pairs}쌍` + (solo && act<=MAX_SEATS?` + 혼자 1명`:"");
+  if(act>MAX_SEATS) msg += ` · 30석을 넘는 ${act-MAX_SEATS}명은 배치되지 않습니다`;
+  return {msg, ok:true, warn:act>MAX_SEATS};
+}
+function refreshPreview(){
+  const p = previewText(parseRosterText($("rosterText").value));
+  const el = $("rosterPreview"); el.textContent = p.msg; el.className = "hint strong" + (!p.ok||p.warn ? " err":"");
+  $("btnRosterSave").disabled = !p.ok;
+}
+function openRoster(){
+  if(running) return;
+  $("classInput").value = CLASS_NAME===DEFAULT_CLASS ? "" : CLASS_NAME;
+  $("rosterText").value = rosterToText(ROSTER);
+  $("fileMsg").textContent = ""; $("xlsxInput").value = "";
+  refreshPreview();
+  $("rosterModal").hidden = false; $("rosterText").focus();
+}
+function closeRoster(){ $("rosterModal").hidden = true; $("btnRoster").focus(); }
+function saveRoster(){
+  const r = parseRosterText($("rosterText").value);
+  if(!previewText(r).ok) return;
+  applyRoster(r, $("classInput").value);
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify({roster:ROSTER, className:CLASS_NAME})); }catch(e){}
+  layout = null; render(null); updateMeta(); closeRoster();
+  toast(`${CLASS_NAME} 명렬을 적용했습니다. [랜덤 셔플]을 눌러 주세요.`);
+}
+function restoreDefault(){
+  $("classInput").value = ""; $("rosterText").value = rosterToText(DEFAULT_ROSTER); refreshPreview();
+}
+async function loadFile(file){
+  const msg = $("fileMsg"); msg.className = "hint"; msg.textContent = "읽는 중…";
+  try{
+    let rows;
+    if(/\.csv$/i.test(file.name) && typeof XLSX==="undefined"){
+      rows = (await file.text()).split(/\r?\n/).map(l=>l.split(","));
+    } else {
+      if(typeof XLSX==="undefined") throw new Error("엑셀 읽기 도구를 불러오지 못했습니다. 인터넷 연결을 확인하거나, 엑셀에서 두 열을 복사해 아래 칸에 붙여넣어 주세요.");
+      const wb = XLSX.read(await file.arrayBuffer(), {type:"array"});
+      rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1, raw:false, defval:""});
+    }
+    const r = rosterFromRows(rows);
+    if(!r.length) throw new Error("파일에서 학생을 찾지 못했습니다. ‘번호’와 ‘성명’ 머리글이 있는지 확인해 주세요.");
+    $("rosterText").value = rosterToText(r); refreshPreview();
+    msg.textContent = `${file.name} 에서 ${r.length}줄을 불러왔습니다. 확인 후 [적용]을 누르세요.`;
+  }catch(e){ msg.className = "hint err"; msg.textContent = e.message || "파일을 읽지 못했습니다."; }
+}
+
+$("btnRoster").addEventListener("click", openRoster);
+$("btnRosterClose").addEventListener("click", closeRoster);
+$("btnRosterCancel").addEventListener("click", closeRoster);
+$("btnRosterSave").addEventListener("click", saveRoster);
+$("btnRosterDefault").addEventListener("click", restoreDefault);
+$("rosterText").addEventListener("input", refreshPreview);
+$("xlsxInput").addEventListener("change", e => { const f=e.target.files[0]; if(f) loadFile(f); });
+$("rosterModal").addEventListener("click", e => { if(e.target.id==="rosterModal") closeRoster(); });
+document.addEventListener("keydown", e => { if(e.key==="Escape" && !$("rosterModal").hidden) closeRoster(); });
+
+// ===== 소리 =====
+let actx = null;
+function audio(){ if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(actx && actx.state==="suspended") actx.resume(); return actx; }
+function beep(freq, dur=.15, type="square", vol=.18, when=0){
+  const a = audio(); if(!a) return;
+  const t = a.currentTime + when, o = a.createOscillator(), g = a.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+.01); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g).connect(a.destination); o.start(t); o.stop(t+dur+.02);
+}
+function tickSound(n){ if(n<=3){ beep(1046,.22,"square",.2); } else { beep(660,.09,"triangle",.22); beep(440,.06,"triangle",.12,.12); } }
+function fanfare(){ [523,659,784,1046].forEach((f,i)=>beep(f,.35,"triangle",.22,i*.11)); beep(1318,.7,"triangle",.2,.48); }
+
+// ===== 셔플 + 10초 카운트다운 =====
+let running = false;
+function setBusy(b){ running=b; ["btnShuffle","btnReset","btnCapture","btnRoster"].forEach(id=>$(id).disabled=b); }
+
+function startShuffle(){
+  if(running) return;
+  setBusy(true); audio();
+  const ov = $("overlay"), num = $("cdNum"), ring = $("ring"), C = 289.03;
+  ov.hidden = false;
+  let n = 10;
+  const flick = setInterval(renderFlicker, 110);
+  const show = () => {
+    num.textContent = n; num.classList.remove("tick"); void num.offsetWidth; num.classList.add("tick");
+    num.classList.toggle("hot", n<=3);
+    ring.style.transition = "stroke-dashoffset 1s linear";
+    ring.setAttribute("stroke-dashoffset", (C*(10-n+1)/10).toFixed(2));
+    tickSound(n);
+  };
+  ring.style.transition="none"; ring.setAttribute("stroke-dashoffset","0");
+  show();
+  const timer = setInterval(()=>{
+    n--;
+    if(n>0){ show(); return; }
+    clearInterval(timer); clearInterval(flick);
+    ov.hidden = true;
+    layout = makeLayout();
+    render(layout, {reveal:true});
+    fanfare();
+    setBusy(false);
+  }, 1000);
+}
+
+function resetAll(){ layout = null; render(null); toast("모든 자리를 비웠습니다."); }
+
+// ===== 캡처(PNG) — 화면과 같은 배치를 캔버스에 직접 그림 =====
+function rr(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+async function drawPNG(){
+  try{ await document.fonts.ready; }catch(e){}
+  const S = 2, W = 1400, H = 1000;
+  const cv = document.createElement("canvas"); cv.width=W*S; cv.height=H*S;
+  const c = cv.getContext("2d"); c.scale(S,S);
+  const DISP = '"Do Hyeon","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
+  const BODY = '"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
+  c.fillStyle="#eef1ec"; c.fillRect(0,0,W,H);
+  c.fillStyle="#1f2a24"; c.textBaseline="middle"; c.textAlign="left";
+  c.font=`40px ${DISP}`; c.fillText(`${CLASS_NAME} 자리배치표`,48,52);
+  c.fillStyle="#66736b"; c.font=`600 18px ${BODY}`; c.textAlign="right";
+  c.fillText(new Date().toLocaleDateString("ko-KR",{year:"numeric",month:"long",day:"numeric"})+` · 재적 ${students.length}명`, W-48, 56);
+
+  const rx=40, ry=100, rw=W-80, rh=H-140;
+  c.fillStyle="#ffffff"; rr(c,rx,ry,rw,rh,18); c.fill(); c.strokeStyle="#c9d2cb"; c.lineWidth=2; c.stroke();
+
+  // 세로 글자: 복도 / 창문
+  const vtext=(t,x,cy)=>{ c.font=`32px ${DISP}`; c.fillStyle="#66736b"; c.textAlign="center"; const ch=[...t], step=58; ch.forEach((s,i)=>c.fillText(s,x,cy+(i-(ch.length-1)/2)*step)); };
+  const sideW=70, midY=ry+rh/2-40;
+  vtext("복도", rx+sideW/2+6, midY); vtext("창문", rx+rw-sideW/2-6, midY);
+  c.font=`600 14px ${BODY}`; c.fillStyle="#66736b"; c.textAlign="center"; c.fillText("교 실  뒤", W/2, ry+20);
+
+  const ax=rx+sideW+10, aw=rw-2*sideW-20, gap=56, dw=(aw-2*gap)/3, dh=112, rgap=22, top=ry+44;
+  for(let g=0; g<GROUPS; g++){
+    const x = ax + g*(dw+gap);
+    for(let vr=0; vr<ROWS; vr++){
+      const r = ROWS-1-vr, y = top + vr*(dh+rgap);
+      const d = layout ? layout[r][g] : {seats:[null,null],solo:false};
+      c.fillStyle="#c9a46a"; rr(c,x,y+3,dw,dh,12); c.fill();
+      c.fillStyle="#e9d2a8"; rr(c,x,y,dw,dh-1,12); c.fill();
+      const sw=(dw-20)/2;
+      for(let s=0;s<2;s++){
+        const sx=x+7+s*(sw+6), sy=y+7, sh=dh-17, st=d.seats[s];
+        if(st){
+          c.fillStyle="#fffaf0"; rr(c,sx,sy,sw,sh,8); c.fill();
+          if(d.solo){ c.strokeStyle="#d88b2c"; c.lineWidth=3; rr(c,sx+1.5,sy+1.5,sw-3,sh-3,7); c.stroke(); }
+          c.textAlign="center"; c.fillStyle="#66736b"; c.font=`400 15px ${BODY}`; c.fillText(st.no+"번", sx+sw/2, sy+26);
+          c.fillStyle="#1f2a24"; c.font=`700 28px ${BODY}`; c.fillText(st.name, sx+sw/2, sy+sh/2+12, sw-10);
+        } else {
+          c.fillStyle="#f4f6f3"; rr(c,sx,sy,sw,sh,8); c.fill();
+          c.strokeStyle="#c9d2cb"; c.lineWidth=1.5; c.setLineDash([6,5]); rr(c,sx+1,sy+1,sw-2,sh-2,7); c.stroke(); c.setLineDash([]);
+          c.textAlign="center"; c.fillStyle="#9aa59e"; c.font=`400 18px ${BODY}`; c.fillText("빈자리", sx+sw/2, sy+sh/2);
+        }
+      }
+    }
+    c.fillStyle="#66736b"; c.font=`600 18px ${BODY}`; c.textAlign="center";
+    c.fillText(`${g+1}분단`, x+dw/2, top+ROWS*(dh+rgap)+8);
+  }
+  // 교탁
+  const py = top+ROWS*(dh+rgap)+40, pw=220, ph=58;
+  c.fillStyle="#c9a46a"; rr(c,W/2-pw/2,py+3,pw,ph,10); c.fill();
+  c.fillStyle="#e9d2a8"; rr(c,W/2-pw/2,py,pw,ph-1,10); c.fill();
+  c.fillStyle="#1f2a24"; c.font=`30px ${DISP}`; c.textAlign="center"; c.fillText("교   탁", W/2, py+ph/2);
+  c.font=`600 14px ${BODY}`; c.fillStyle="#66736b"; c.fillText("교 실  앞", W/2, py+ph+20);
+  return cv;
+}
+
+function stamp(){ const d=new Date(), p=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`; }
+
+// claude.ai 아티팩트 안에서는 downloads 기능, 일반 브라우저에서는 바로 다운로드
+let dlPromise = null;
+function getDownloads(){
+  if(!window.claude || typeof window.claude.use!=="function") return Promise.resolve(null);
+  if(!dlPromise) dlPromise = window.claude.use("downloads").catch(()=>null);
+  return dlPromise;
+}
+async function capture(){
+  if(!layout){ toast("먼저 [랜덤 셔플]로 자리를 배치해 주세요."); return; }
+  const btn=$("btnCapture"); btn.disabled=true;
+  try{
+    const cv = await drawPNG();
+    const blob = await new Promise(res=>cv.toBlob(res,"image/png"));
+    const filename = `자리배치표_${stamp()}.png`;
+    const dl = await getDownloads();
+    if(dl){
+      try{ await dl.save({filename, data:blob}); toast("PNG 파일을 저장했습니다."); }
+      catch(e){ if(e && e.code==="declined") toast("저장을 취소했습니다."); else toast("이 화면에서는 저장할 수 없습니다."); }
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 2000);
+      toast("PNG 파일을 내려받았습니다.");
+    }
+  } finally { btn.disabled=false; }
+}
+
+let toastT=null;
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,2400); }
+
+$("btnShuffle").addEventListener("click", startShuffle);
+$("btnReset").addEventListener("click", resetAll);
+$("btnCapture").addEventListener("click", capture);
+updateMeta();
+render(null);   // 처음에는 모두 빈자리
+getDownloads();
+</script>
